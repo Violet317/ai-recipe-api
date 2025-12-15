@@ -1,5 +1,7 @@
 # main.py - 完整版（一字不差）
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+import os
 from pydantic import BaseModel
 from typing import List, Optional
 from recipe_service import recommend_recipes
@@ -9,6 +11,10 @@ import json
 
 app = FastAPI()
 
+_origins_raw = os.getenv("CORS_ORIGINS", "http://localhost:5173")
+_origins = [o.strip() for o in _origins_raw.split(",") if o.strip()]
+_allow_credentials = _origins != ["*"]
+app.add_middleware(CORSMiddleware, allow_origins=_origins, allow_credentials=_allow_credentials, allow_methods=["*"], allow_headers=["*"])
 
 class RecipeRequest(BaseModel):
     ingredients: List[str]
@@ -41,6 +47,33 @@ def recommend(request: RecipeRequest):
         "total": len(recipes)
     }
 
+@app.on_event("startup")
+def seed_data():
+    from models import SessionLocal, Recipe
+    import json
+    db = SessionLocal()
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        data_path = os.path.join(base_dir, "data", "recipes.json")
+        if not os.path.exists(data_path):
+            return
+        with open(data_path, "r", encoding="utf-8") as f:
+            recipes_data = json.load(f)
+        for r in recipes_data:
+            exists = db.query(Recipe).filter(Recipe.id == r["id"]).first()
+            if exists:
+                continue
+            db.add(Recipe(
+                id=r["id"],
+                name=r["name"],
+                ingredients=json.dumps(r["ingredients"], ensure_ascii=False),
+                steps=json.dumps(r["steps"], ensure_ascii=False),
+                time=r["time"],
+                tags=json.dumps(r["tags"], ensure_ascii=False)
+            ))
+        db.commit()
+    finally:
+        db.close()
 
 # main.py - 只替换这两个函数
 

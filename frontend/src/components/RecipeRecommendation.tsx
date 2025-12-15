@@ -15,16 +15,14 @@ const RecipeRecommendation: React.FC = () => {
     setError('');
 
     try {
-      // 处理输入
-      const ingredients = ingredientsInput
-        .split(',')
-        .map(ing => ing.trim())
-        .filter(ing => ing);
-      
-      const tags = tagsInput
-        .split(',')
-        .map(tag => tag.trim())
-        .filter(tag => tag);
+      const split = (v: string) =>
+        v
+          .split(/[,\uFF0C\u3001;\s]+/)
+          .map(x => x.trim())
+          .filter(Boolean);
+
+      const ingredients = split(ingredientsInput);
+      const tags = split(tagsInput);
 
       if (ingredients.length === 0) {
         setError('请至少输入一种食材');
@@ -113,6 +111,9 @@ const RecipeRecommendation: React.FC = () => {
             ))}
           </div>
         </div>
+      )}
+      {!isLoading && !error && recommendations.length === 0 && (
+        <div className="no-results">没有找到推荐，请输入能匹配的食材（至少两种），或去掉过多标签筛选。</div>
       )}
     </div>
   );

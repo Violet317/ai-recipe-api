@@ -35,7 +35,7 @@ def recommend_recipes(user_ingredients: List[str], filter_tags: Optional[List[st
 
             # 食材匹配
             matched = set(user_ingredients) & set(recipe["ingredients"])
-            if len(matched) >= 2:
+            if len(matched) >= 1:
                 recommendations.append({
                     "id": recipe["id"],
                     "name": recipe["name"],
