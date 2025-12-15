@@ -1,0 +1,6 @@
+fastapi~=0.124.4
+pydantic~=2.12.5
+python-jose~=3.5.0
+passlib~=1.7.4
+SQLAlchemy~=2.0.45
+requests~=2.32.5
