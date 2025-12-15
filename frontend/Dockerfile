@@ -13,7 +13,12 @@ RUN npm ci
 # 复制项目文件
 COPY . .
 
-# 构建生产版本
+# 【关键修改】接收并设置构建时环境变量
+# 这行必须添加在 RUN npm run build 之前
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
+# 构建生产版本（此时Vite能读取到环境变量）
 RUN npm run build
 
 # 使用Nginx作为服务器
