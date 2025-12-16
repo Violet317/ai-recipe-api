@@ -13,8 +13,7 @@ RUN npm ci
 # 复制项目文件
 COPY . .
 
-# 【关键修改】接收并设置构建时环境变量
-# 这些ARG必须添加在 RUN npm run build 之前
+# 接收构建时环境变量
 ARG VITE_API_BASE_URL
 ARG VITE_APP_TITLE="AI食谱推荐"
 ARG VITE_DEBUG="false"
@@ -23,7 +22,6 @@ ARG VITE_DEBUG="false"
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_APP_TITLE=$VITE_APP_TITLE
 ENV VITE_DEBUG=$VITE_DEBUG
-ENV VITE_BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 # 验证必需的构建时变量
 RUN if [ -z "$VITE_API_BASE_URL" ]; then \
@@ -36,10 +34,9 @@ RUN if [ -z "$VITE_API_BASE_URL" ]; then \
 RUN echo "构建配置信息:" && \
     echo "  API_BASE_URL: $VITE_API_BASE_URL" && \
     echo "  APP_TITLE: $VITE_APP_TITLE" && \
-    echo "  DEBUG: $VITE_DEBUG" && \
-    echo "  BUILD_TIME: $VITE_BUILD_TIME"
+    echo "  DEBUG: $VITE_DEBUG"
 
-# 构建生产版本（此时Vite能读取到环境变量）
+# 构建生产版本
 RUN npm run build
 
 # 使用Nginx作为服务器

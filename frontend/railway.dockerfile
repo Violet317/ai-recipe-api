@@ -33,7 +33,11 @@ RUN if [ -z "$VITE_API_BASE_URL" ] && [ -n "$RAILWAY_STATIC_URL" ]; then \
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_APP_TITLE=$VITE_APP_TITLE
 ENV VITE_DEBUG=$VITE_DEBUG
-ENV VITE_BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+# 生成构建时间戳并设置环境变量
+RUN BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ") && \
+    echo "VITE_BUILD_TIME=$BUILD_TIME" >> .env.production && \
+    export VITE_BUILD_TIME="$BUILD_TIME"
 
 # Railway特定的环境变量
 ENV RAILWAY_ENVIRONMENT=production
