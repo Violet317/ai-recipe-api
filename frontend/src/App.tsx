@@ -19,9 +19,8 @@ const App: React.FC = () => {
     }
 
     // 在开发环境或调试模式中默认显示配置详情
-    if (import.meta.env.DEV || import.meta.env.VITE_DEBUG === 'true') {
-      setShowConfigDetails(true);
-    }
+    // 临时：在所有环境中显示配置状态以便调试
+    setShowConfigDetails(true);
   }, []);
 
   const handleAuthSuccess = (newToken: string) => {
@@ -60,8 +59,8 @@ const App: React.FC = () => {
             />
           )}
 
-          {/* 配置状态切换按钮（开发环境或调试模式） */}
-          {(import.meta.env.DEV || import.meta.env.VITE_DEBUG === 'true') && (
+          {/* 配置状态切换按钮（临时：所有环境显示） */}
+          {true && (
             <div style={{ textAlign: 'center', marginBottom: '16px' }}>
               <button 
                 onClick={() => setShowConfigDetails(!showConfigDetails)}
