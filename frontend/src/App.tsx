@@ -51,6 +51,22 @@ const App: React.FC = () => {
         </header>
 
         <main className="app-main">
+          {/* 调试信息 - 强制显示 */}
+          <div style={{ 
+            backgroundColor: '#f0f0f0', 
+            padding: '10px', 
+            margin: '10px', 
+            border: '2px solid red',
+            borderRadius: '5px'
+          }}>
+            <h3>🔧 调试信息</h3>
+            <p>showConfigDetails: {showConfigDetails.toString()}</p>
+            <p>configReady: {configReady.toString()}</p>
+            <p>DEV模式: {import.meta.env.DEV.toString()}</p>
+            <p>VITE_DEBUG: {import.meta.env.VITE_DEBUG || 'undefined'}</p>
+            <p>VITE_API_BASE_URL: {import.meta.env.VITE_API_BASE_URL || 'undefined'}</p>
+          </div>
+
           {/* 配置状态显示 */}
           {(showConfigDetails || !configReady) && (
             <ConfigStatus 
