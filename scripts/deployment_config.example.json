@@ -1,0 +1,15 @@
+{
+  "backend_url": "https://your-backend-service.railway.app",
+  "frontend_url": "https://your-frontend-service.railway.app",
+  "timeout": 30,
+  "notification": {
+    "enabled": false,
+    "webhook_url": "",
+    "email": ""
+  },
+  "test_config": {
+    "skip_frontend_test": false,
+    "test_user_prefix": "deploy_test",
+    "max_retries": 3
+  }
+}

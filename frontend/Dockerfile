@@ -14,9 +14,30 @@ RUN npm ci
 COPY . .
 
 # 【关键修改】接收并设置构建时环境变量
-# 这行必须添加在 RUN npm run build 之前
+# 这些ARG必须添加在 RUN npm run build 之前
 ARG VITE_API_BASE_URL
+ARG VITE_APP_TITLE="AI食谱推荐"
+ARG VITE_DEBUG="false"
+
+# 设置环境变量供Vite构建时使用
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_APP_TITLE=$VITE_APP_TITLE
+ENV VITE_DEBUG=$VITE_DEBUG
+ENV VITE_BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+# 验证必需的构建时变量
+RUN if [ -z "$VITE_API_BASE_URL" ]; then \
+      echo "错误: VITE_API_BASE_URL 构建参数是必需的"; \
+      echo "请使用: docker build --build-arg VITE_API_BASE_URL=<your-api-url> ."; \
+      exit 1; \
+    fi
+
+# 打印构建配置信息（用于调试）
+RUN echo "构建配置信息:" && \
+    echo "  API_BASE_URL: $VITE_API_BASE_URL" && \
+    echo "  APP_TITLE: $VITE_APP_TITLE" && \
+    echo "  DEBUG: $VITE_DEBUG" && \
+    echo "  BUILD_TIME: $VITE_BUILD_TIME"
 
 # 构建生产版本（此时Vite能读取到环境变量）
 RUN npm run build

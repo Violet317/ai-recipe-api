@@ -2,16 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import RecipeRecommendation from './components/RecipeRecommendation';
 import Auth from './components/Auth';
+import ConfigStatus from './components/ConfigStatus';
+
 import './App.css';
 
 const App: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
+  const [configReady, setConfigReady] = useState<boolean>(true);
+  const [showConfigDetails, setShowConfigDetails] = useState<boolean>(false);
 
   // 检查localStorage中的token
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
     if (savedToken) {
       setToken(savedToken);
+    }
+
+    // 在开发环境中默认显示配置详情
+    if (import.meta.env.DEV) {
+      setShowConfigDetails(true);
     }
   }, []);
 
@@ -43,6 +52,34 @@ const App: React.FC = () => {
         </header>
 
         <main className="app-main">
+          {/* 配置状态显示 */}
+          {(showConfigDetails || !configReady) && (
+            <ConfigStatus 
+              showDetails={showConfigDetails}
+              onConfigReady={setConfigReady}
+            />
+          )}
+
+          {/* 配置状态切换按钮（仅开发环境） */}
+          {import.meta.env.DEV && (
+            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+              <button 
+                onClick={() => setShowConfigDetails(!showConfigDetails)}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                {showConfigDetails ? '隐藏配置状态' : '显示配置状态'}
+              </button>
+            </div>
+          )}
+
           <Routes>
             <Route path="/" element={<RecipeRecommendation />} />
             <Route 

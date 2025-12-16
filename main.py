@@ -7,12 +7,22 @@ from typing import List, Optional
 from recipe_service import recommend_recipes
 from models import SessionLocal, Recipe, User
 from auth import verify_password, get_password_hash, create_access_token
+from env_manager import env_manager, validate_environment, get_config_status
 import json
 
 app = FastAPI()
 
-_origins_raw = os.getenv("CORS_ORIGINS", "http://localhost:5173")
-_origins = [o.strip() for o in _origins_raw.split(",") if o.strip()]
+# 设置环境变量默认值并验证配置
+env_manager.setup_environment_defaults()
+config_report = validate_environment()
+
+# 如果配置有严重错误，打印警告
+if config_report.overall_status.value == "invalid":
+    print("⚠️  环境变量配置存在问题:")
+    env_manager.print_config_status()
+
+# 使用环境管理器获取CORS配置
+_origins = env_manager.get_cors_origins()
 _allow_credentials = _origins != ["*"]
 app.add_middleware(CORSMiddleware, allow_origins=_origins, allow_credentials=_allow_credentials, allow_methods=["*"], allow_headers=["*"])
 
@@ -148,3 +158,58 @@ def login(user: UserLogin):
 @app.get("/")
 def read_root():
     return {"message": "AI食谱API服务正常"}
+
+
+@app.get("/health")
+def health_check():
+    """健康检查端点"""
+    config_report = validate_environment()
+    
+    return {
+        "status": "healthy" if config_report.overall_status.value != "invalid" else "unhealthy",
+        "timestamp": json.loads(json.dumps({"time": "now"}, default=str))["time"],
+        "service": "AI食谱API",
+        "version": "1.0.0",
+        "configuration": {
+            "status": config_report.overall_status.value,
+            "summary": config_report.summary
+        },
+        "api_base_url": env_manager.get_api_base_url(),
+        "cors_origins": env_manager.get_cors_origins()
+    }
+
+
+@app.get("/config/status")
+def get_configuration_status():
+    """获取详细的配置状态"""
+    return get_config_status()
+
+
+@app.get("/config/validate")
+def validate_configuration():
+    """验证配置并返回报告"""
+    config_report = validate_environment()
+    
+    return {
+        "valid": config_report.overall_status.value != "invalid",
+        "report": config_report.to_dict(),
+        "recommendations": _get_config_recommendations(config_report)
+    }
+
+
+def _get_config_recommendations(config_report) -> List[str]:
+    """根据配置报告生成建议"""
+    recommendations = []
+    
+    for item in config_report.items:
+        if item.status.value == "missing" and item.required:
+            recommendations.append(f"设置必需的环境变量 {item.name}")
+        elif item.status.value == "invalid":
+            recommendations.append(f"修复环境变量 {item.name} 的格式")
+        elif item.status.value == "warning":
+            recommendations.append(f"考虑设置可选环境变量 {item.name}")
+    
+    if not recommendations:
+        recommendations.append("配置看起来不错！")
+    
+    return recommendations

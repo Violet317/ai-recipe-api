@@ -1,0 +1,4 @@
+# file: E:\python_code\myfirstapi\env_manager.py
+# hypothesis_version: 6.148.7
+
+['*', ',', '=', 'CORS_ORIGINS', 'CORS允许的源', 'DATABASE_URL', 'DATABASE_URL格式无效', 'JWT密钥', 'RAILWAY_STATIC_URL', 'Railway静态URL', 'SECRET_KEY', 'SECRET_KEY必须至少32个字符', '[可选]', '[必需]', '__main__', 'default', 'description', 'error_msg', 'https://', 'invalid', 'items', 'message', 'missing', 'mysql://', 'name', 'overall_status', 'postgresql://', 'required', 'sqlite://', 'status', 'summary', 'valid', 'validator', 'value', 'warning', '所有配置项验证通过', '数据库连接URL', '环境变量配置状态报告', '配置基本正确，但存在警告项', '配置验证失败：存在必需变量缺失或无效']
